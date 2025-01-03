@@ -1,43 +1,38 @@
 import streamlit as st
 
-st.title("AI English Tutor is Here!")
-st.subheader("All you can learn about Englsh!")
-st.write("hello world!")
+st.title("AI tutor Title")
+st.subheader("sub header")
+st.write("hello world")
 
-# #markdown 형식으로 글쓰기!
-# """
-# # This is title
-# ## This is sub title
-# ### This is our content
+"""
+# This is title
+## This is sub title
+### This is sub title
 
-# - First
-# - Second
-# - Third
+- 첫번째
+- 두번째
+- 세번째
+"""
 
-# """
-
-#다양한 input 방식
 text = st.text_input("text input")
 st.write(text)
 
-gender = st.selectbox('성별', ('male', 'female'))
+gender = st.selectbox('성별', ('남자', '여자'))
 st.write(f"gender: {gender}")
 
-#Checkbox!
-selected = st.checkbox("Do you agree?")
+selected = st.checkbox("동의하시겠습니까?")
 
 if selected:
-    st.success("You've agreed")
+    st.success("동의했습니다.")
 
 
 options = st.multiselect('취미', ['음악 감상', '독서', '게임'])
-st.write(', '.join(options)) #list 형식의 결과물을 text 형식으로 변환후, ','로 join함.
+st.write(', '.join(options))
 
-#Layouts
 with st.sidebar:
-    add_radio = st.radio("language", ("Korean", "English"))
+    add_radio = st.radio("언어 선택", ("한국어", "영어"))
 
-#column 형식
+
 col1, col2, col3 = st.columns(3)
 
 with col1:
@@ -52,8 +47,6 @@ with col3:
    st.header("An owl")
    st.image("https://static.streamlit.io/examples/owl.jpg")
 
-
-#tab 형식
 tab1, tab2, tab3 = st.tabs(["Cat", "Dog", "Owl"])
 
 with tab1:
