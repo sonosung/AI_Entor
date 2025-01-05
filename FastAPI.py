@@ -1,4 +1,6 @@
+from typing import Optional
 from fastapi import FastAPI
+from pydantic import BaseModel
 
 app = FastAPI()
 
@@ -38,4 +40,45 @@ def read_tiem_by_name(name: str):
     for item_id, item in items.items():
         if item['name'] == name:
             return item
-    return {"error": "data not found"}   
+    return {"error": "data not found"}
+
+
+#데이터 CRUD 기능 실습.
+
+#BaseModel을 상속받는 Item 클래스 생성.
+class Item(BaseModel):
+    name: str
+    price: int
+
+@app.post("/items/{item_id}")
+
+def create_item(item_id: int, item: Item):
+    if item_id in items:
+        return {"error": "there's already existing key."}
+    items[item_id] = dict(item) #아이템의 형태가 dictionary 형태로 관리되기 때문에, 같은 형식인 dict로 바꿔주는 것임.
+    print(items) #터미널에 출력 확인용.
+    return {"success": "ok"}
+
+
+#Update
+class ItemForUpdate(BaseModel):
+    name: Optional[str]
+    price: Optional[int] 
+    
+#Post 방식에서는 유효성 검사를 거치기 때문에, name이나 price 에서 하나만 빠져도 유효성 검사에서 걸린다.
+#이 부분을 개선하기 위해서 Optional를 사용해서, 변경이 된 값 넘길 수 있도록 해준다.
+
+@app.put("/items/{item_id}")
+
+def update_item(item_id: int, item: ItemForUpdate):
+    #유효성 검사
+    if item_id not in items: 
+        return {"error": f"there's no item id: {item_id}"}
+    
+    if item.name:
+        items[item_id]['name'] = item.name
+
+    if item.price:
+        items[item_id]['price'] = item.price
+
+    return {"success": "ok"}
