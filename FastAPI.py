@@ -23,6 +23,12 @@ items = {
 @app.get("/items/{item_id}")
 
 def read_item(item_id: int):
+    
+    #아이템 삭제시 안내를 위한 if문
+    if item_id not in items:
+        return {"error": f"{item_id}번 품목이 없습니다."}
+        #return {"error": f"there's no item id: {"item_id"}"}
+
     item = items[item_id]
     return item
 
@@ -82,3 +88,10 @@ def update_item(item_id: int, item: ItemForUpdate):
         items[item_id]['price'] = item.price
 
     return {"success": "ok"}
+
+#삭제 구현
+@app.delete("/items/{item_id}")
+
+def delete_item(item_id: int):
+    items.pop(item_id)
+    return{"success": "ok"}
