@@ -27,18 +27,19 @@ def autoplay_audio(file_path: str):
         )
 
 # View
-st.title("���� ��ŷ ����")
+st.title("프리 토킹 서비스")
 
 con1 = st.container()
 con2 = st.container()
 
 user_input = ""
 
+#음성인식 먼저 시행.
 with con2:
-    audio_bytes = audio_recorder("talk", pause_threshold=3.0,)
+    audio_bytes = audio_recorder("mic", pause_threshold=3.0,) #pause_threshold 무음이 3초 지나면 녹음 종료.
     try:
         if audio_bytes:
-            with open("./tmp_audio.wav", "wb") as f:
+            with open("./tmp_audio.wav", "wb") as f: #저장위치. OpenAI Whisper API에서 이 경로의 파일을 읽어옴.
                 f.write(audio_bytes)
 
             with open("./tmp_audio.wav", "rb") as f: 
@@ -50,7 +51,7 @@ with con2:
     except Exception as e:
         pass
 
-
+#메시지를 화면에 나타내는 코드.
 with con1:
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
@@ -75,7 +76,7 @@ with con1:
                 stream=True,
             ):
                 full_response += (response.choices[0].delta.content or "")
-                message_placeholder.markdown(full_response + "?")
+                message_placeholder.markdown(full_response + "▌")
             message_placeholder.markdown(full_response)
 
             speech_file_path = "tmp_speak.mp3"
@@ -89,3 +90,6 @@ with con1:
             autoplay_audio(speech_file_path)
 
         st.session_state.messages.append({"role": "assistant", "content": full_response})
+
+
+
