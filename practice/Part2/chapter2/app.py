@@ -86,7 +86,7 @@ elif  st.session_state["curr_page"] == "chat":
     def stt(audio_bytes):
         #byteIO를 파일의 형태로 바꾸기.
         audio_file = io.BytesIO(audio_bytes)
-        files = {"audio_file": {"audio.wav", audio_file, "audio/wav"}}
+        files = {"audio_file": ("audio.wav", audio_file, "audio/wav")}
         response = requests.post(transcribe_url, files=files)
         return response.json()
 

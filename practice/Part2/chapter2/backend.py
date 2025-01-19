@@ -12,7 +12,7 @@ from openai import OpenAI
 
 
 client = OpenAI()
-model = ChatOpenAI(model="gpt-4-1106-preview")
+model = ChatOpenAI(model="gpt-4o")
 app = FastAPI()
 
 
