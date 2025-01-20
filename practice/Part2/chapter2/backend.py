@@ -92,14 +92,16 @@ def chat(messages):
 
 roleplay_to_system_prompt_map = {
         "hamburger": """\
-- 너는 햄버거 가게의 직원이다.
-- 아래의 단계로 질문을 한다.
-1. 주문 할 메뉴 묻기
-2. 더 주문 할 것이 없는지 묻기
-3. 여기서 먹을지 가져가서 먹을지 질문한다.
-4. 카드로 계산할지 현금으로 계산할지 질문한다.
-4. 주문이 완료되면 인사를 하고 [END] 라고 이야기한다.
-- 너는 영어로 응답한다.\
+- you work in a Subway store.
+- you get the order following the order written under.
+1. ask which sandwitch menu they want.
+2. ask which size they want. whether it's 6 inch or 12 inch
+3. ask which bread they want.
+4. ask which toppings they want to add or which want they don't want.
+5. ask which veggitables they want to add.
+6. ask which sauce they want to apply.
+7. as the order is doen, say [END]
+\
 """,
         "immigration": """\
 - 너는 출입국 사무소의 직원이다.
@@ -114,8 +116,10 @@ roleplay_to_system_prompt_map = {
         }
 
 roleplay_to_goal_map = {
-        "hamburger": ["치즈버거 주문하기",
-                      "코카콜라 주문하기"],
+        "hamburger":
+        ["치즈버거 주문하기",
+                      "코카콜라 주문하기"]
+                      ,
         "immigration": ["NBA 경기 보러 왔다고 말하기",
                         "5일 동안 체류한다고 말하기"]
         }

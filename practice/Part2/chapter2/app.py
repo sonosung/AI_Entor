@@ -95,11 +95,11 @@ elif  st.session_state["curr_page"] == "chat":
         # response = requests.post(transcribe_url, files=files)
         # return response.json()
 
-    def chat(text, roleplay=None):
+    def chat(text, roleplay):
         user_turn = {"role": "user", "content": text}
         messages = st.session_state.messages + [user_turn]
 
-        resp = requests.post(chat_url, json={"messages": messages})
+        resp = requests.post(chat_url + f"/{roleplay}", json={"messages": messages})
         assistant_turn = resp.json()
         return assistant_turn['content']
 
