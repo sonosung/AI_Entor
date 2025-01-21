@@ -31,6 +31,8 @@ class Goal(pyd1.BaseModel):
     goal_number: int = pyd1.Field(description="goal number.")
     accomplished: bool = pyd1.Field(description="true if goal is accomplished else false.")
 
+    #출력될 형태
+    #{"goal_list": ["goal":"~~", "goal_number":0, "accomplished": True}, ]}
 
 class Goals(pyd1.BaseModel):
     goal_list: List[Goal] = pyd1.Field(default=[])
@@ -41,15 +43,23 @@ format_instruction = parser.get_format_instructions()
 
 
 def detect_goal_completion(messages, roleplay):
+    #goal_check_chain에 값을 넣기위해 전역변수 설정.
     global parser, format_instruction
 
+    # 프롬프트 템플릿에 넣고, AI에게 질문을 하기위해 텍스트 형식으로 변환하여 가져올 수 있는 형식으로
     # Conversation
     conversation ="\n".join([ f"{msg['role']}: {msg['content']}" for msg in messages]) 
 
     # Goals
-    goal_list = roleplay_to_goal_map[roleplay]
+    goal_list = roleplay_to_goal_map[roleplay] #list 형태의 goal list ["치즈버거 주문하기", "코카콜라 주문하기"]
+    # Goal list의 값을 순회하며 텍스트로 변환
     goals = "\n".join([f"- Goal Number {i}: {goal} " for i, goal in enumerate(goal_list)])
 
+    #프롬프트 템플릿에 저장되는 형식↓
+    # """
+    # - Goal Number 0: 치즈버거 주문하기
+    # - Goal Number 1: 코카콜라 주문하기
+    # """
     
     prompt_template = """
 # 대화

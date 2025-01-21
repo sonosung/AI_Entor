@@ -28,7 +28,7 @@ if "prev_audio_bytes" not in st.session_state:
 
 # Assuming you have a dictionary that holds your data like below:
 roleplays = {
-    'hamburger': {"display_name":'햄버거 주문하기', 'emoji': '🍔', 'difficulty': '⭐️'},
+    'hamburger': {"display_name":'서브웨이 주문하기', 'emoji': '🍔', 'difficulty': '⭐️'},
     'immigration': {'display_name':'입국 심사하기', 'emoji': '🏦', 'difficulty': '⭐️'},
 
     'bank': {'display_name':'은행에서 대출하기', 'emoji': '🏦', 'difficulty': '⭐️⭐️⭐️'},
@@ -112,21 +112,22 @@ elif  st.session_state["curr_page"] == "chat":
         # return assistant_turn['content']
 
 
-    @st.cache_data
+    @st.cache_data #롤플레이가 바뀌지 않는이상, API를 재호출하지 않아도 일정시간 세션을 유지하기 위해 캐시를 이용함.
     def get_goals(roleplay):
-        pass
-        # resp = requests.get(f"{host_url}/{roleplay}/goals")
-        # goals = resp.json()
-        # return goals
+        # pass
+        resp = requests.get(f"{host_url}/{roleplay}/goals")
+        goals = resp.json()
+        return goals
 
 
     @st.cache_data
     def check_goals(messages, roleplay):
-        pass
-        # resp = requests.post(f"{host_url}/{roleplay}/check_goals",
-        #                      json={"messages": messages})
-        # goals = resp.json()
-        # return goals
+        # pass
+        #롤플레이에서 원하는 목표를 다 달성했는지 확인하기 위해 메시지를 json형태로 가져옴.
+        resp = requests.post(f"{host_url}/{roleplay}/check_goals",
+                             json={"messages": messages})
+        goals = resp.json()
+        return goals
 
 
 
@@ -159,11 +160,11 @@ elif  st.session_state["curr_page"] == "chat":
     ###############################################
     # Conversation
     speech_file_path = "tmp_speak.mp3"
-    # if "goal_list" not in st.session_state:
-    #     st.session_state.goal_list = get_goals(roleplay)
+    if "goal_list" not in st.session_state:
+        st.session_state.goal_list = get_goals(roleplay)
 
-    # goal_text = "\n".join([f"- {goal}" for goal in st.session_state.goal_list])
-    # goal_result = ""
+    goal_text = "\n".join([f"- {goal}" for goal in st.session_state.goal_list])
+    goal_result = ""
 
     with st.container(border=True, height=480):
         con1 = st.container()
@@ -217,7 +218,10 @@ elif  st.session_state["curr_page"] == "chat":
                       input=bot_output
                     )
                     response.stream_to_file(speech_file_path)
+
+                #목표 체크. 시간이 걸리는 작업엔 spinner를 넣어주면 좋음 ㅎㅎ    
                 with st.spinner("목표 체크중..."):
+                    #체크가 완료된 결과를 받고, messages, roleplay를 넘겨줌.
                     goal_result = check_goals(st.session_state.messages, roleplay)
 
                 st.markdown(bot_output)
@@ -232,10 +236,11 @@ elif  st.session_state["curr_page"] == "chat":
 
     with st.container(border=True):
         st.markdown("### Goal")
-        # if goal_result:
-        #     st.markdown("\n".join([f"- {st.session_state.goal_list[g['goal_number']]}: {'✅' if g['accomplished'] else '❌'} " for g in goal_result['goal_list']]))
-        # else:
-        #     st.markdown(goal_text)
+        if goal_result:
+            st.markdown("\n".join([f"- {st.session_state.goal_list[g['goal_number']]}: {'✅' if g['accomplished'] else '❌'} " for g in goal_result['goal_list']]))
+        else:
+            #달성한 목표가 없으면 그냥 목표 이름 가져오기.
+            st.markdown(goal_text)
 
 
 
