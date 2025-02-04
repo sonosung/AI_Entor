@@ -18,11 +18,11 @@ def build_grammar_analysis_chain(model):
     parser = JsonOutputParser(pydantic_object=Grammar)
     format_instruction = parser.get_format_instructions()
 
-    human_msg_prompt_template = HumanMessagePromptTemplate.from_template("{input}\n--\n위 영어 텍스트에서 문법적으로 틀진 부분을 찾아서 나열해줘. 형식은 아래의 포맷을 따르라. value 값은 한국어로 작성해라. {format_instruction}",
+    human_msg_prompt_template = HumanMessagePromptTemplate.from_template("{input}\n--\n위 영어 텍스트에서 문법적으로 틀진 부분을 찾아서 나열해줘. 형식은 아래의 포맷을 따르라. value 값은 한국어로 작성해라.\n{format_instruction}",
                                                                          partial_variables={"format_instruction": format_instruction})
     
     prompt_template = ChatPromptTemplate.from_messages(
-        [human_msg_prompt_template]
+        [human_msg_prompt_template],
     )
 
     chain = prompt_template | model | parser
@@ -45,6 +45,7 @@ def build_grammar_analysis_chain(model):
 
 
 class EnglishProficiencyScore(pyd1.BaseModel):
+    #출력값 선언.
     vocabulary: int = pyd1.Field(description="어휘, 단어의 적절성 0~10점 사이로 점수를 표현해라")
     coherence: int = pyd1.Field(description="일관성 0점~10점 사이로 점수를 표현해라")
     clarity: int = pyd1.Field(description="명확성 0점~3점 사이로 점수를 표현해라")
@@ -63,23 +64,42 @@ def build_proficiency_scoring_chain(model):
             human_msg_prompt_template
         ],
     )
-    
+
     chain = prompt_template | model | parser
     return chain
 
+    # parser = JsonOutputParser(pydantic_object=EnglishProficiencyScore)
+    # format_instruction = parser.get_format_instructions()
+
+    # human_msg_prompt_template = HumanMessagePromptTemplate.from_template(
+    #     "{input}\n---\nEvaluate the overall English proficiency of the above text. Consider grammar, vocabulary, coherence, etc. Follow the format: {format_instruction}",
+    #     partial_variables={"format_instruction": format_instruction})
+
+    # prompt_template = ChatPromptTemplate.from_messages(
+    #     [
+    #         human_msg_prompt_template
+    #     ],
+    # )
+    
+    # chain = prompt_template | model | parser
+    # return chain
 
 
+#교정 이후
 class Correction(pyd1.BaseModel):
-    reason: str = pyd1.Field(description="원래의 영어 문장이 어색하거나 잘못된 이유. 한국어로 작성하라.")
-    correct_sentence: str = pyd1.Field(description="교정된 문장")
+    reason: str = pyd1.Field(description = "The reason why the grammar is wrong or incorrect in the input sentence. write in Korean.")
+    correct_sentence: str = pyd1.Field(description = "corrected sentence")
+
+    # reason: str = pyd1.Field(description="원래의 영어 문장이 어색하거나 잘못된 이유. 한국어로 작성하라.")
+    # correct_sentence: str = pyd1.Field(description="교정된 문장")
 
 
 def build_correction_chain(model):
-    parser = JsonOutputParser(pydantic_object=Correction)
+    parser = JsonOutputParser(pydantic_object = Correction)
     format_instruction = parser.get_format_instructions()
 
     human_msg_prompt_template = HumanMessagePromptTemplate.from_template(
-        "{input}\n---\n위 영어 문장이 문법적으로 틀렸거나 어색한 이유를 다음의 포맷에 맞춰 응답해라.  : {format_instruction}",
+        "{input}\n---\nResponse the reason why the sentence above is wrong or incorrect following the next format. : {format_instruction}",
         partial_variables={"format_instruction": format_instruction})
 
     prompt_template = ChatPromptTemplate.from_messages(
@@ -87,9 +107,25 @@ def build_correction_chain(model):
             human_msg_prompt_template
         ],
     )
-    
+
     chain = prompt_template | model | parser
     return chain
+
+    # parser = JsonOutputParser(pydantic_object=Correction)
+    # format_instruction = parser.get_format_instructions()
+
+    # human_msg_prompt_template = HumanMessagePromptTemplate.from_template(
+    #     "{input}\n---\n위 영어 문장이 문법적으로 틀렸거나 어색한 이유를 다음의 포맷에 맞춰 응답해라.  : {format_instruction}",
+    #     partial_variables={"format_instruction": format_instruction})
+
+    # prompt_template = ChatPromptTemplate.from_messages(
+    #     [
+    #         human_msg_prompt_template
+    #     ],
+    # )
+    
+    # chain = prompt_template | model | parser
+    # return chain
 
 
 if "model" not in st.session_state:
@@ -151,7 +187,7 @@ if user_input:
 with st.sidebar:
     st.title("AI Assistant")
 
-    con = st.container(border=True)
+    con = st.container(border=True) #나중에 전체 스코어 표시하기 위해 미리 맨 위에 선언함.
     
     with st.container(border=True):
         """
@@ -160,7 +196,7 @@ with st.sidebar:
 
         if user_input and grammar_analysis:
             with st.spinner('Analyzing correctness...'):
-                n_wrong = len(grammar_analysis['reason_list'])
+                n_wrong = len(grammar_analysis['reason_list']) #reason_list의 갯수가 틀린 이유의 갯수.
 
             if n_wrong:
                 st.error(f"{n_wrong} alert")
@@ -184,11 +220,11 @@ with st.sidebar:
 
             score_text = f"{score}/10"
             if score >= 8:
-                st.success(score_text)
+                st.success(score_text)  #초록색
             elif 4<= score < 8:
-                st.warning(score_text)
+                st.warning(score_text)  #주황색
             else:
-                st.error(score_text)
+                st.error(score_text)    #빨강색
 
 
     with st.container(border=True):
@@ -230,7 +266,7 @@ with st.sidebar:
 
 
 
-
+#코드 작성 위치는 아래이지만, con 선언한 맨 위에 표시가 됨.
     with con:
         """
         **Overall score**
